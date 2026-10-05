@@ -2,6 +2,11 @@
 
 **Burn less. Do more.** Claude leads. Codex grinds. Your quota survives.
 
+[![Install](https://img.shields.io/badge/install-Claude%20Code%20skill-D97757?logo=anthropic&logoColor=white)](#quick-start)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#quick-start)
+[![Executor](https://img.shields.io/badge/executor-Codex%20CLI-black?logo=openai)](https://github.com/openai/codex)
+
 [简体中文](README.zh-CN.md)
 
 ## Why this exists
@@ -56,6 +61,12 @@ flowchart LR
 - **Evidence over self-reporting.** "Not run" never counts as passed, and "build passes" never stands in for correct behavior.
 - **Mechanical checks.** The script checks scope, reruns the verification commands outside the sandbox, and fails explore/audit if they modified tracked files.
 - **Safe by default.** Commits are opt-in, there is no auto-push, rework is capped at two rounds, and rollbacks are scoped explicitly.
+
+## See it in action
+
+![Real output after Codex finished a small task in a demo repo](docs/images/exec-check.png)
+
+*Real output after Codex implemented a small task in a demo repo: every acceptance item (A1–A3) comes with file:line evidence, the scope check passes, and the tests are rerun outside the Codex sandbox. Codex wrote its report in Chinese here because of the author's local settings.*
 
 ## Problems it solves
 

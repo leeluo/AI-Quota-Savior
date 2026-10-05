@@ -86,7 +86,7 @@ check() {
     ok=0
     while IFS= read -r p || [ -n "$p" ]; do p=${p%$'\r'}; [ -n "$p" ] && [[ $f == $p ]] && { ok=1; break; }; done < "$task/allowed.txt"
     [ "$ok" = 1 ] || { echo "OUT-OF-SCOPE  $f"; out=1; }
-  done < <({ git -C "$repo" diff --name-only -z "$base"; git -C "$repo" ls-files -z --others --exclude-standard; } | sort -zu)
+  done < <({ git -C "$repo" -c core.safecrlf=false diff --name-only -z "$base" 2>/dev/null; git -C "$repo" ls-files -z --others --exclude-standard; } | sort -zu)
   [ "$out" = 0 ] && echo "OK"
   echo "== 验证命令（在 repo 根目录重跑）"
   : > "$task/verify.log"
@@ -103,7 +103,7 @@ check() {
   [ "$n" != 0 ] || { echo "FAIL verify.txt 没有可执行命令"; out=1; }
   echo "== 验证日志: $task/verify.log"
   echo "== diff 统计"
-  git -C "$repo" diff --stat "$base" | tail -15
+  git -C "$repo" -c core.safecrlf=false diff --stat "$base" 2>/dev/null | tail -15
   git -C "$repo" ls-files --others --exclude-standard | sed 's/^/ 新增 /'
   return "$out"
 }

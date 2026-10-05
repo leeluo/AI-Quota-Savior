@@ -2,6 +2,11 @@
 
 **少烧额度，多干活。** Claude 带队，Codex 肝活，额度保命。
 
+[![Install](https://img.shields.io/badge/install-Claude%20Code%20skill-D97757?logo=anthropic&logoColor=white)](#快速开始)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#快速开始)
+[![Executor](https://img.shields.io/badge/executor-Codex%20CLI-black?logo=openai)](https://github.com/openai/codex)
+
 [English](README.md)
 
 ## 为什么做这个项目
@@ -56,6 +61,12 @@ flowchart LR
 - **用证据说话，不信自报。** "没运行"不能算通过，"构建通过"也不能代替"行为正确"。
 - **机械核实。** 脚本自动做越界检查，在沙箱外重跑验证命令；如果调查或验收阶段改动了已跟踪的源码，直接判定失败。
 - **默认安全。** 自动提交要显式开启，不会自动 push；返工最多两轮；回滚前先明确范围。
+
+## 实际效果
+
+![Codex 在 demo 仓库完成一个小任务后的真实输出](docs/images/exec-check.png)
+
+*Codex 在 demo 仓库里完成一个小任务后的真实输出：每个验收项（A1–A3）都附带 文件:行号 证据，越界检查通过，测试在 Codex 沙箱外重新运行通过。*
 
 ## 解决的问题
 
