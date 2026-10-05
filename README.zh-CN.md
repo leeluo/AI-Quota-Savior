@@ -155,4 +155,4 @@ bash ~/.claude/skills/ai-quota-savior/codex.sh <mode> <repo> <slug> [返工文�
 
 ## 许可证
 
-目前还没有选择开源许可证。在添加许可证之前，作者保留所有权利。
+[MIT](LICENSE) © 2026 Leeluo

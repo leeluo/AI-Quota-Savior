@@ -155,4 +155,4 @@ Task files live in `<repo>/.codex-tasks/<slug>/`. The folder is added to the rep
 
 ## License
 
-No license has been chosen yet. Until one is added, all rights are reserved by the author.
+[MIT](LICENSE) © 2026 Leeluo
