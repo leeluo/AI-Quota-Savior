@@ -14,16 +14,16 @@ Claude leads. Codex grinds. Your quota survives.
 ## Why this exists
 
 **Claude: genius brain, glass-jaw account.**
-- It is best-in-class at planning, reasoning and code review.
-- Bans happen more often than anyone would like. You pay up for a premium plan, wake up to a suspended account, and your wallet gets banned right along with it.
+- Best planner, reasoner and code reviewer in the room.
+- Also the one most likely to be gone tomorrow. Paying for a full year? Bold.
 
 **Codex: the reliable intern with a bigger lunch budget.**
 - 👍 Stable subscription, more quota, more frequent resets. *(Used to be more. Tibo, we need to talk.)*
-- 👎 Not as sharp. Left unsupervised, it:
-  - skims the plan,
-  - "improves" three unrelated files,
-  - declares victory without running a single test,
-  - and keeps fixing the same bug until the heat death of the universe.
+- 👎 Not as sharp. Left alone, it:
+  - reads half the plan,
+  - "improves" things nobody asked about,
+  - says "Done." Tests? What tests?
+  - fixes that one bug. Again.
 
 **So this project squeezes every last drop out of Claude's quota.**
 - **Claude is the foreman.** It understands the problem, makes the calls and signs off on the result.
