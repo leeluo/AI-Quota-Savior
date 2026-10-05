@@ -4,154 +4,136 @@
 
 [简体中文](README.zh-CN.md)
 
-AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill. It splits coding work between two agents:
-
-- **Claude** (Opus, Sonnet, …) does the thinking. It designs the investigation, makes the plan and the key decisions, and gives the final acceptance.
-- **Codex** does the legwork. It reads code, implements the change, runs tests, and collects evidence.
-
-The goal is fewer Claude tokens spent per *accepted* task, without lowering the quality bar.
-
----
-
 ## Why this exists
 
-Strong models like Claude Opus produce excellent plans and reviews. Their usage quota, however, is tight. A lot of that quota goes to work that doesn't need top-tier judgment:
+**Claude is the model you want, but it is risky to rely on.**
+- Its models are excellent at planning, reasoning and code review.
+- Accounts get banned fairly often. If you pay a lot for a premium plan and then lose the account, that money is gone.
 
-- reading dozens of files,
-- trial-and-error editing,
-- rerunning tests over and over,
-- pasting long logs back into the conversation.
+**Codex is the opposite trade-off.**
+- 👍 The subscription is more stable. You get more quota, and it resets more often.
+- 👎 Its models may not be as good as Claude's. Left alone, Codex tends to drift from the plan, do unnecessary work, claim "done" without proof, and get stuck on the same bug.
 
-Codex usually comes with a much larger quota. Left on its own, though, it tends to:
+**So this project squeezes every bit of value out of Claude's quota.** Claude only does what truly needs top-tier intelligence: understanding the problem, designing the plan, making key decisions, and giving final acceptance. Everything else goes to Codex: reading code, editing, testing and collecting evidence.
 
-- drift from the plan,
-- do unnecessary work,
-- report "done" without proof,
-- get stuck on the same bug.
+AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill that turns this split into a repeatable workflow.
 
-AI Quota Savior combines the two. Claude decides **what** to do and **whether it is good enough**. Codex does the **how**, inside strict boundaries, and must back every claim with evidence.
+## How it works
 
-## Design
+**Roles**
+- **Claude** is the commander. It writes the questions, the plan and the acceptance criteria, and it makes the final call.
+- **Codex** is the executor. It investigates, implements and verifies, inside strict boundaries, and it must back every claim with evidence.
 
-1. **Spend the strong model only on judgment.** Claude writes the investigation questions, the plan, and the acceptance criteria, and it makes the final call. Reading, editing, testing and evidence collection are delegated.
-2. **Keep only the essence in Claude's context.**
-   - Codex's raw event logs stay on disk.
-   - The script prints only a summary of up to 20 lines, a scope check, the verification results and a diff stat.
-   - Claude reads a full report section only when a decision depends on it.
-3. **Evidence over self-reporting.**
-   - Every acceptance item has a stable ID (`A1`, `A2`, …) with an input, an expected result, a verification method and the evidence required.
-   - Codex must report each item as `passed`, `failed` or `not_run`, with evidence. "Not run" never counts as passed, and "the build passes" never stands in for business behavior.
-4. **Trust, but verify mechanically.** The script runs these checks outside Codex:
-   - a **scope check**: changed files vs. `allowed.txt`;
-   - a rerun of **every verification command** outside the Codex sandbox;
-   - a check that **explore/audit** sessions did not modify tracked files.
-5. **Independent audit when it matters.** For high-risk changes, a *fresh* Codex session checks the implementation against the acceptance plan. It verifies and reports only; it never fixes anything. Claude still makes the final call.
-6. **Safe by default.**
-   - Commits are opt-in (`CODEX_CHECKPOINT=1`). There is no automatic push.
-   - Rework is capped at two rounds.
-   - Rollback is scoped explicitly. There is never a blanket `reset --hard`.
+Everything is driven by plain files. Claude writes short instruction documents, Codex returns structured reports, and a script connects the two:
+
+| Kind | File | Purpose |
+|---|---|---|
+| **Skill (fixed)** | `SKILL.md` | Claude's playbook: routing, workflow, acceptance standards |
+| | `codex.sh` | The orchestrator. It calls Codex, then runs the scope check, reruns the verification commands, and prints a short summary |
+| | `explore-rules.md` / `exec-rules.md` / `audit-rules.md` | Codex's rules for each phase: investigate, implement, audit |
+| | `report-schema.json` | Forces the implementation report into JSON with per-item evidence |
+| | `self-check.py` | Offline test of the whole flow with a mock Codex |
+| **Per task** (`<repo>/.codex-tasks/<slug>/`) | `explore.md` → `map.md` | Claude's investigation questions → Codex's findings (≤20-line summary plus a full body with `file:line` evidence) |
+| | `plan.md` + `allowed.txt` + `verify.txt` | The plan with acceptance items `A1…An`, the paths Codex may change, and the commands that must pass |
+| | `report.json` | Codex's implementation report: a status and evidence for every acceptance item |
+| | `audit-plan.md` → `audit.md` | Optional independent verification by a fresh Codex session |
+| | `rework-N.md`, `decision.md` | Rework instructions; Claude's final verdict |
+
+```mermaid
+flowchart LR
+  A[Claude: explore.md] -->|explore| B[Codex: map.md]
+  B --> C[Claude: plan.md / allowed.txt / verify.txt]
+  C -->|exec| D[Codex: code + report.json]
+  D --> E[script: scope check + rerun verify]
+  E --> F{Claude decides}
+  F -->|high risk| G[Codex: audit.md] --> F
+  F -->|not good enough| H[rework-N.md] -->|resume| D
+  F -->|accepted| I[decision + your manual check]
+```
+
+**Key principles**
+- **Only the essence reaches Claude.** Raw logs stay on disk. Claude reads summaries, and opens a full section only when a decision depends on it.
+- **Evidence over self-reporting.** "Not run" never counts as passed, and "build passes" never stands in for correct behavior.
+- **Mechanical checks.** The script checks scope, reruns the verification commands outside the sandbox, and fails explore/audit if they modified tracked files.
+- **Safe by default.** Commits are opt-in, there is no auto-push, rework is capped at two rounds, and rollbacks are scoped explicitly.
 
 ## Problems it solves
 
-| Problem | How AI Quota Savior handles it |
+| Problem | Solution |
 |---|---|
-| The premium model's quota runs out on routine work | Code reading, edits, tests and log reading are delegated to Codex |
-| The executor drifts or over-engineers | Strict execution rules: change only allowed paths, keep the existing style, and stop on design trade-offs |
-| "Done" without proof | Per-item acceptance evidence plus mechanical re-verification outside the sandbox |
-| Out-of-scope edits | An automatic scope check against `allowed.txt` |
-| Endless fix loops | At most two rework rounds; then the user decides |
-| Losing context between chats | All state lives in `<repo>/.codex-tasks/<slug>/`, so a new chat can resume from `plan.md` and the reports |
-| The reviewer changing code during review | Tracked-file snapshots before and after explore/audit |
+| Premium quota burned on routine work | Reading, editing, testing and log reading go to Codex |
+| The executor drifts or over-engineers | Strict rules: allowed paths only, existing style, stop on design trade-offs |
+| "Done" without proof | Per-item evidence plus re-verification outside the sandbox |
+| Out-of-scope edits | Automatic check against `allowed.txt` |
+| Endless fix loops | At most two rework rounds, then you decide |
+| Losing context between chats | All state lives in task files, so a new chat can resume |
 
-## Requirements
+## Quick start
 
-- **Windows** with **Git Bash**.
-- **Claude Code** (CLI, desktop app or IDE extension).
-- **OpenAI Codex**, installed and signed in. The script picks up the newest `codex.exe` from the Codex desktop install. Set `CODEX_BIN` to use a different one.
-- A **Git repository with at least one commit** to work in.
+**Requirements**
+- [Claude Code](https://claude.com/claude-code).
+- The [Codex CLI](https://github.com/openai/codex), installed and signed in.
+- bash: Git Bash on Windows, the system bash on macOS or Linux.
+- A Git repository with at least one commit.
 
-## Installation
-
-Copy the `ai-quota-savior/` folder into your Claude Code skills directory:
+**Install**
 
 ```bash
 git clone https://github.com/leeluo/AI-Quota-Savior.git
 cp -r AI-Quota-Savior/ai-quota-savior ~/.claude/skills/
+python ~/.claude/skills/ai-quota-savior/self-check.py   # Windows: pass the Git Bash path as the first argument
 ```
 
-Then check that everything works. The self-check is offline: it runs the whole flow against a mock Codex and makes no model calls.
-
-```bash
-python ~/.claude/skills/ai-quota-savior/self-check.py "C:/Program Files/Git/bin/bash.exe"
-```
-
-## Usage
-
-In Claude Code, either invoke the skill directly:
+**Use.** In Claude Code, either type:
 
 ```
 /ai-quota-savior Add pagination to the project list, 20 items per page
 ```
 
-or just ask in plain language: *"Use AI Quota Savior and hand this to Codex: …"*. Claude then picks a path:
+or just say *"Use AI Quota Savior and hand this to Codex: …"*.
 
-| Task | Path |
-|---|---|
-| Small change | Claude just does it (cheaper than delegating) |
-| Batch / mechanical edits | Short plan plus checkable acceptance items, then execute |
-| Code understanding / completeness survey | Investigation only (`explore`) |
-| Hard bug | Claude designs the hypotheses, Codex traces and tests them, Claude decides the root cause, then the fix is delegated |
-| Medium / large feature | Investigate → plan → implement → (audit) → final decision |
+Claude picks the path itself:
+- **Small change**: does it directly.
+- **Investigation only**: runs `explore`.
+- **Medium or large feature**: investigate → plan → implement → (audit) → decide.
 
-### The workflow
+It reports "technically accepted" separately from "pending your manual check". Committing is always up to you.
 
-1. **Investigate** (optional).
-   - Claude writes `explore.md`: the decision to support, the questions to answer, the entry points and the exclusions.
-   - `codex.sh explore` runs Codex in a read-only sandbox and produces `map.md`: a summary of up to 20 lines, then a full body with `file:line` evidence.
-2. **Plan.** Claude writes three files:
-   - `plan.md`: the goal, the code facts it relies on, the behavior changes for each file or function, the constraints, and the acceptance items `A1…An`;
-   - `allowed.txt`: the paths Codex may change (Bash globs);
-   - `verify.txt`: the commands that must pass.
-3. **Implement.** `codex.sh exec` runs Codex in a workspace-write sandbox. It returns a schema-validated `report.json`, then the script runs the scope check, reruns the verification commands, and prints a diff stat.
-4. **Audit** (high-risk work only).
-   - Claude writes `audit-plan.md`.
-   - `codex.sh audit` starts a fresh Codex session that verifies and writes `audit.md`.
-5. **Decide.** Claude reviews the evidence, spot-checks the risky code, and reports "technically accepted" separately from "pending your manual check". Committing is up to you.
-6. **Rework** (at most two rounds).
-   - `codex.sh resume` continues the implementation session with `rework-N.md`.
-   - Use `codex.sh feedback` after your own manual testing: it first sets a new baseline from the current state.
-
-### Script reference
+<details>
+<summary>Script reference</summary>
 
 ```bash
-bash ~/.claude/skills/ai-quota-savior/codex.sh <mode> <repo> <slug> [rework-file]
+bash ~/.claude/skills/ai-quota-savior/codex.sh <explore|exec|audit|resume|feedback|check> <repo> <slug> [rework-file]
 ```
 
-| Mode | What it does |
-|---|---|
-| `explore` | Read-only investigation → `map.md` |
-| `exec` | Implement `plan.md` → `report.json`, then run `check` |
-| `audit` | Fresh verification session → `audit.md` |
-| `resume` | Continue the implementation session with a rework file |
-| `feedback` | Like `resume`, but first sets a new baseline from the current state |
-| `check` | Rerun the scope check and the verification commands only (needs no Codex) |
-
-| Environment variable | Purpose |
+| Variable | Purpose |
 |---|---|
 | `CODEX_EFFORT` | Reasoning effort, default `high` |
-| `CODEX_BIN` | Path to `codex.exe` |
-| `CODEX_CHECKPOINT=1` | Allow committing uncommitted changes as a baseline checkpoint. **Set this only when the user has authorized it.** |
+| `CODEX_BIN` | Path to Codex. Default lookup: the Windows desktop app's newest `codex.exe`, then `codex` on `PATH` |
+| `CODEX_CHECKPOINT=1` | Allow committing uncommitted changes as a baseline. Set it only with the user's authorization |
 
-Task files live in `<repo>/.codex-tasks/<slug>/`. The folder is added to the repo's local `.git/info/exclude`, so it never gets committed.
+</details>
 
-## Windows & sandbox notes
+<details>
+<summary>Sandbox notes</summary>
 
-- **Codex's sandbox has limits.** It often cannot spawn subprocesses (Node tests fail with `spawn EPERM`), write to some directories, or reach local Docker services and secrets.
-  - Prefer sandbox-friendly verification commands (for example, `--test-isolation=none` for Node tests).
-  - The script's own rerun outside the sandbox is authoritative. A `partial` report only triggers a warning.
-- **Ops tasks** that need local services or secrets work like this: Codex writes the script with a dry-run mode; Claude runs the dry-run outside the sandbox, reviews it, and only then applies.
-- **Python:** if the repo path contains spaces, use `uv run python -X utf8 -m pytest` instead of `uv run pytest`.
-- **One delegation per repo at a time.** Don't let other agents edit the same repo meanwhile.
+- **The Codex sandbox may block subprocesses, some directories, and local services.**
+  - Prefer sandbox-friendly verification commands.
+  - The script's rerun outside the sandbox is authoritative. A `partial` report only warns.
+- **Ops tasks that need local services or secrets:** Codex writes a script with a dry-run mode; Claude runs it outside the sandbox and reviews the result before applying.
+- **One delegation per repo at a time.** Keep other agents out of that repo meanwhile.
+
+</details>
+
+## Beyond Claude Code
+
+This skill is built for Claude Code, but the idea works with **any** pair of models: **let a smarter, quota-limited model command, and let a cheaper, higher-quota model execute.**
+
+For example, you could adapt it into a **Codex skill**:
+- **Command**: a Codex model such as Astra, on an affordable plan.
+- **Execute**: DeepSeek or another low-cost model.
+
+The workflow, file contracts and checks don't depend on any particular vendor, so porting mostly means swapping the call in `codex.sh` and the rule files. This repository focuses on the Claude + Codex setup and doesn't ship ports; it just leaves the door open.
 
 ## License
 

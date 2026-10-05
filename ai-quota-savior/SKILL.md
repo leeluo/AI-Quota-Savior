@@ -22,7 +22,7 @@ Claude 通过交付物理解现状和判断结果，按需阅读章节。证据�
 调用：`/ai-quota-savior`，或直接说“用 AI Quota Savior，把这个任务交给 Codex”。
 
 脚本：`bash ~/.claude/skills/ai-quota-savior/codex.sh <mode> <repo> <slug>`。
-任务目录：`<repo>/.codex-tasks/<slug>/`，自动加入仓库本地 exclude。需 Windows、Git Bash、已登录的 Codex CLI 和已有提交的 Git 仓库。默认使用本机 Codex 配置的模型，推理强度 `high`；`CODEX_EFFORT=xhigh` 可覆盖，`CODEX_BIN` 可指定可执行文件。
+任务目录：`<repo>/.codex-tasks/<slug>/`，自动加入仓库本地 exclude。需 bash（Windows 用 Git Bash，macOS/Linux 用系统 bash）、已登录的 Codex CLI 和已有提交的 Git 仓库。Codex 查找顺序：CODEX_BIN → Windows 桌面端最新的 codex.exe → PATH 中的 codex。默认使用本机 Codex 配置的模型，推理强度 `high`；`CODEX_EFFORT=xhigh` 可覆盖，`CODEX_BIN` 可指定可执行文件。
 
 | 任务 | 路径 |
 |---|---|
@@ -95,11 +95,11 @@ Claude 定向复核高风险点、矛盾或证据薄弱的源码，不默认重�
 
 放弃委派需用户明确同意。先检查 start 之后的改动、用户新增文件及检查点，再说明精确回退范围；不默认执行整个仓库的 reset --hard / clean -fd。
 
-## Windows 与沙箱注意事项
+## 平台与沙箱注意事项
 
 - Codex 沙箱内常无法启动子进程（node 测试报 `spawn EPERM`）、写 `.local/` 等目录或访问本机 Docker / 密钥。验证命令尽量选沙箱可运行的写法（如 node 测试加 `--test-isolation=none`），最终以脚本在沙箱外的重跑为准。
 - 需要访问本机服务、密钥或数据库的运维操作：Codex 只写脚本（放在沙箱可写的路径并加入仓库本地 exclude，先实现 dry-run），由 Claude 在沙箱外运行 dry-run、核对清单后再执行。
-- Python：仓库路径含空格时 `uv run pytest` 会失败，用 `uv run python -X utf8 -m pytest`；不加 UTF-8 模式会遇到 GBK 解码错误。
+- Windows 上的 Python：仓库路径含空格时 `uv run pytest` 会失败，用 `uv run python -X utf8 -m pytest`；不加 UTF-8 模式会遇到 GBK 解码错误。
 - 后台命令被中断时 Codex 进程可能仍在运行：确认结束后再用 `check` 验收。
 
-维护脚本后运行 `python self-check.py "C:/Program Files/Git/bin/bash.exe"`。它在临时仓库使用模拟 Codex 检查流程，不调用模型；实际节省额度与交付质量仍需真实任务验证。
+维护脚本后运行 `python self-check.py [bash 路径]`（Windows 传 Git Bash 路径，如 `"C:/Program Files/Git/bin/bash.exe"`；macOS/Linux 可省略）。它在临时仓库使用模拟 Codex 检查流程，不调用模型；实际节省额度与交付质量仍需真实任务验证。

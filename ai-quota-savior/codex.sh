@@ -9,13 +9,23 @@ mode=${1:?mode} repo=$(cd "${2:?repo}" && pwd) slug=${3:?slug}
 [[ $slug =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { echo "ABORT slug 只能含字母、数字、点、下划线和连字符"; exit 2; }
 case $mode in explore|exec|audit|check|resume|feedback) ;; *) echo "ABORT 未知模式: $mode"; exit 2 ;; esac
 task="$repo/.codex-tasks/$slug" here=$(cd "$(dirname "$0")" && pwd) EFFORT=${CODEX_EFFORT:-high}
-w() { cygpath -w "$1"; }
+HAS_CYGPATH=0; command -v cygpath >/dev/null 2>&1 && HAS_CYGPATH=1
+w() { if [ "$HAS_CYGPATH" = 1 ]; then cygpath -w "$1"; else printf '%s\n' "$1"; fi; } # 传给 Codex 的路径：Windows 转换，macOS/Linux 原样
 need() { local f; for f in "$@"; do [ -s "$task/$f" ] || { echo "ABORT 缺少 $task/$f"; exit 2; }; done; }
+
+find_codex() { # CODEX_BIN > Windows 桌面端最新版（旧的 bin/codex.exe 可能读不了当前配置）> PATH 中的 codex
+  if [ -n "${CODEX_BIN:-}" ]; then printf '%s\n' "$CODEX_BIN"; return; fi
+  if [ "$HAS_CYGPATH" = 1 ] && [ -n "${LOCALAPPDATA:-}" ]; then
+    local c; c=$(ls -t "$(cygpath "$LOCALAPPDATA")"/OpenAI/Codex/bin/*/codex.exe 2>/dev/null | head -1 || true)
+    if [ -n "$c" ]; then printf '%s\n' "$c"; return; fi
+  fi
+  command -v codex || true
+}
 
 # check 仅重跑本地检查，不需要 Codex CLI。
 if [ "$mode" != check ]; then
-  CODEX=${CODEX_BIN:-$(ls -t "$(cygpath "$LOCALAPPDATA")"/OpenAI/Codex/bin/*/codex.exe 2>/dev/null | head -1 || true)}
-  [ -x "$CODEX" ] || { echo "ABORT 找不到 codex.exe，请设置 CODEX_BIN"; exit 2; }
+  CODEX=$(find_codex)
+  [ -n "$CODEX" ] && [ -x "$CODEX" ] || { echo "ABORT 找不到 Codex CLI，请安装并登录，或设置 CODEX_BIN"; exit 2; }
 fi
 ex=$(git -C "$repo" rev-parse --path-format=absolute --git-path info/exclude) || { echo "ABORT 不是 git 仓库"; exit 2; }
 git -C "$repo" rev-parse --verify HEAD >/dev/null || { echo "ABORT 仓库还没有任何提交"; exit 2; }

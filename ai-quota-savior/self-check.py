@@ -10,7 +10,7 @@ import tempfile
 
 HERE = Path(__file__).resolve().parent
 BASH = sys.argv[1] if len(sys.argv) > 1 else shutil.which("bash")
-assert BASH, "Pass the path to Git Bash (not WSL bash) on Windows"
+assert BASH, "Pass the path to bash (on Windows: Git Bash, not WSL bash)"
 
 
 def run(args, *, env=None, expected=0, cwd=None):
@@ -41,7 +41,7 @@ for arg in "$@"; do
   [ "$arg" != resume ] || resumed=1
   prev=$arg
 done
-out=$(cygpath -u "$out")
+! command -v cygpath >/dev/null 2>&1 || out=$(cygpath -u "$out")
 case "$out" in
   */map.md) tid=explore-session ;;
   */audit.md) tid=audit-session ;;
