@@ -13,17 +13,21 @@ Claude leads. Codex grinds. Your quota survives.
 
 ## Why this exists
 
-**Claude is the model you want, but it is risky to rely on.**
+**Claude: genius brain, glass-jaw account.**
+- It is best-in-class at planning, reasoning and code review.
+- Bans happen more often than anyone would like. You pay up for a premium plan, wake up to a suspended account, and your wallet gets banned right along with it.
 
-- Its models are excellent at planning, reasoning and code review.
-- Accounts get banned fairly often. If you pay a lot for a premium plan and then lose the account, that money is gone.
+**Codex: the reliable intern with a bigger lunch budget.**
+- 👍 Stable subscription, more quota, more frequent resets. *(Well, mostly. It just announced that the 20x plan keeps its price and loses half its quota. Et tu, Codex?)*
+- 👎 Not as sharp. Left unsupervised, it:
+  - skims the plan,
+  - "improves" three unrelated files,
+  - declares victory without running a single test,
+  - and keeps fixing the same bug until the heat death of the universe.
 
-**Codex is the opposite trade-off.**
-
-- 👍 The subscription is more stable. You get more quota, and it resets more often.
-- 👎 Its models may not be as good as Claude's. Left alone, Codex tends to drift from the plan, do unnecessary work, claim "done" without proof, and get stuck on the same bug.
-
-**So this project squeezes every bit of value out of Claude's quota.** Claude only does what truly needs top-tier intelligence: understanding the problem, designing the plan, making key decisions, and giving final acceptance. Everything else goes to Codex: reading code, editing, testing and collecting evidence.
+**So this project squeezes every last drop out of Claude's quota.**
+- **Claude is the foreman.** It understands the problem, makes the calls and signs off on the result.
+- **Codex is the crew.** It reads, edits and tests, and brings receipts for everything it claims.
 
 AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill that turns this split into a repeatable workflow.
 
