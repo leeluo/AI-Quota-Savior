@@ -14,8 +14,8 @@ Claude leads. Codex grinds. Your quota survives.
 ## Why this exists
 
 **Claude: genius brain, glass-jaw account.**
-- Best planner, reasoner and code reviewer in the room.
-- Also the one most likely to be gone tomorrow. Paying for a full year? Bold.
+- Smartest one in the room.
+- Also the one most likely to get kicked out of it. Annual plan? Brave.
 
 **Codex: the reliable intern with a bigger lunch budget.**
 - 👍 Stable subscription, more quota, more frequent resets. *(Used to be more. Tibo, we need to talk.)*
@@ -46,11 +46,10 @@ AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill that tu
 
 **Roles**
 
-- **Claude** is the commander. It writes the questions, the plan and the acceptance criteria, and it makes the final call.
-- **Codex** is the executor. It investigates, implements and verifies, inside strict boundaries, and it must back every claim with evidence.
+- **Claude is the boss.** Thinks, decides, signs off. Barely touches the keyboard.
+- **Codex is the crew.** Reads, codes, tests. Pics or it didn't happen.
 
-Everything is driven by plain files. Claude writes short instruction documents, Codex returns structured reports, and a script connects the two:
-
+No magic, just files. Claude writes short memos, Codex hands back reports, and a bash script keeps everyone honest:
 
 | Kind                                         | File                                                    | Purpose                                                                                                                   |
 | -------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -82,12 +81,10 @@ flowchart LR
 
 **Key principles**
 
-- **Only the essence reaches Claude.** Raw logs stay on disk. Claude reads summaries, and opens a full section only when a decision depends on it.
-- **Evidence over self-reporting.** "Not run" never counts as passed, and "build passes" never stands in for correct behavior.
-- **Mechanical checks.** The script checks scope, reruns the verification commands outside the sandbox, and fails explore/audit if they modified tracked files.
-- **Safe by default.** Commits are opt-in, there is no auto-push, rework is capped at two rounds, and rollbacks are scoped explicitly.
-
-
+- **Claude reads the summary, not the novel.** Raw logs stay on disk; full sections only when a decision needs them.
+- **Receipts, not vibes.** "Not run" isn't "passed". "It builds" isn't "it works".
+- **Trust, then verify.** The script checks scope, reruns the tests outside the sandbox, and fails any reviewer caught editing code.
+- **No surprises.** Commits need your OK, nothing gets pushed, two rework rounds max, and no surprise `reset --hard`.
 
 ## See it in action
 
