@@ -1,0 +1,23 @@
+{
+  "type": "object", "additionalProperties": false,
+  "required": ["status", "changed_files", "verify", "acceptance", "deviations", "not_done", "issues"],
+  "properties": {
+    "status": {"type": "string", "enum": ["done", "partial", "blocked"]},
+    "changed_files": {"type": "array", "items": {"type": "string"}},
+    "verify": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["cmd", "passed"],
+      "properties": {"cmd": {"type": "string"}, "passed": {"type": "boolean"}}
+    }},
+    "acceptance": {"type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["id", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "status": {"type": "string", "enum": ["passed", "failed", "not_run"]},
+        "evidence": {"type": "string"}
+      }
+    }},
+    "deviations": {"type": "array", "items": {"type": "string"}},
+    "not_done": {"type": "array", "items": {"type": "string"}},
+    "issues": {"type": "array", "items": {"type": "string"}}
+  }
+}
