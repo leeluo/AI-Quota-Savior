@@ -15,7 +15,7 @@ Claude leads. Codex grinds. Your quota survives.
 
 **Claude: genius brain, glass-jaw account.**
 - Smartest one in the room.
-- Also the one most likely to get kicked out of it. Annual plan? Brave.
+- Also the one most likely to get kicked out of it. Claude Max? Brave.
 
 **Codex: the reliable intern with a bigger lunch budget.**
 - 👍 Stable subscription, more quota, more frequent resets. *(Used to be more. Tibo, we need to talk.)*
@@ -35,12 +35,12 @@ AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill that tu
 
 ## Measured results
 
-**Same Claude Pro quota, 3.5–4× the work.**
+**Same Claude Pro quota. 3.5–4× the work.**
 
-- **Before:** with Opus 5.5 on xhigh effort, the quota drains fast, and then you sit waiting for the reset.
-- **Now:** Opus only thinks and judges, while Codex does the grinding. The same quota covers **3.5–4× as many tasks**.
+- **Before:** Opus 5.5 on xhigh. A few rounds in, the quota's gone. The rest of the day? Waiting for the reset.
+- **Now:** Opus thinks, Codex sweats. Same quota, **3.5–4×** the tasks.
 
-> Measured in the author's daily use (Claude Pro · Opus 5.5 · xhigh effort), not a benchmark. Medium and large features gain the most.
+> The author's daily use (Claude Pro · Opus 5.5 · xhigh), not a benchmark. Medium and large features pay off most.
 
 ## How it works
 
@@ -88,24 +88,20 @@ flowchart LR
 
 ## See it in action
 
-![Real output after Codex finished a small task in a demo repo](docs/images/exec-check.png)
+![A real run on a demo repo](docs/images/exec-check.png)
 
-*Real output after Codex implemented a small task in a demo repo: every acceptance item (A1–A3) comes with file:line evidence, the scope check passes, and the tests are rerun outside the Codex sandbox. Codex wrote its report in Chinese here because of the author's local settings.*
+*A real run, not a staged one: every acceptance item (A1–A3) comes with file:line evidence, the scope check is OK, and the tests ran again outside the sandbox. (Codex answered in Chinese because of the author's local settings.)*
 
 ## Problems it solves
 
-
-| Problem                               | Solution                                                                    |
-| ------------------------------------- | --------------------------------------------------------------------------- |
-| Premium quota burned on routine work  | Reading, editing, testing and log reading go to Codex                       |
-| The executor drifts or over-engineers | Strict rules: allowed paths only, existing style, stop on design trade-offs |
-| "Done" without proof                  | Per-item evidence plus re-verification outside the sandbox                  |
-| Out-of-scope edits                    | Automatic check against `allowed.txt`                                       |
-| Endless fix loops                     | At most two rework rounds, then you decide                                  |
-| Losing context between chats          | All state lives in task files, so a new chat can resume                     |
-
-
-
+| Pain | Fix |
+|---|---|
+| Premium quota burned on grunt work | Grunt work goes to Codex |
+| The executor freestyles | Allowed files only; stop at every trade-off |
+| "Done!" (no proof) | Evidence for every item, re-checked outside the sandbox |
+| "While I was in there…" edits | The scope check against `allowed.txt` catches them |
+| The same bug, forever | Two rework rounds max, then you decide |
+| New chat, who dis? | Everything lives in task files; pick up where you left off |
 
 ## Quick start
 
@@ -138,7 +134,7 @@ Claude picks the path itself:
 - **Investigation only**: runs `explore`.
 - **Medium or large feature**: investigate → plan → implement → (audit) → decide.
 
-It reports "technically accepted" separately from "pending your manual check". Committing is always up to you.
+At the end you get two verdicts: "technically accepted" and "your turn to check". Committing? Always your call.
 
 Script reference
 
@@ -168,14 +164,14 @@ Sandbox notes
 
 ## Beyond Claude Code
 
-This skill is built for Claude Code, but the idea works with **any** pair of models: **let a smarter, quota-limited model command, and let a cheaper, higher-quota model execute.**
+One rule: **the smart-but-rationed model gives orders; the cheap-and-plentiful one does the work.** The logo on the box doesn't matter.
 
-For example, you could adapt it into a **Codex skill**:
+Say, as a Codex skill:
 
-- **Command**: a Codex model such as Astra, on an affordable plan.
-- **Execute**: DeepSeek or another low-cost model.
+1. **Command:** Codex's Astra on a cheap plan.
+2. **Execute:** DeepSeek, or whatever is cheapest this month.
 
-The workflow, file contracts and checks don't depend on any particular vendor, so porting mostly means swapping the call in `codex.sh` and the rule files. This repository focuses on the Claude + Codex setup and doesn't ship ports; it just leaves the door open.
+The workflow, files and checks don't care about vendors; porting means swapping the call in `codex.sh` and the rule files. This repo sticks with Claude + Codex. The door is open; walking through it is up to you.
 
 ## License
 
