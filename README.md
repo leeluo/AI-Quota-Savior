@@ -18,7 +18,7 @@ Claude leads. Codex grinds. Your quota survives.
 - Bans happen more often than anyone would like. You pay up for a premium plan, wake up to a suspended account, and your wallet gets banned right along with it.
 
 **Codex: the reliable intern with a bigger lunch budget.**
-- 👍 Stable subscription, more quota, more frequent resets. *(The top plan did just get the shrinkflation treatment: same price, half the quota. But hey, the box still looks great.)*
+- 👍 Stable subscription, more quota, more frequent resets. *(Its 20x plan now gives you 10x. Developers call that a breaking change.)*
 - 👎 Not as sharp. Left unsupervised, it:
   - skims the plan,
   - "improves" three unrelated files,
@@ -31,7 +31,7 @@ Claude leads. Codex grinds. Your quota survives.
 
 AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill that turns this split into a repeatable workflow.
 
-**Why Claude Code? Because right now, Claude is the smartest one in the room.** But the AI leaderboard changes hands faster than a hot potato at a toddler's birthday party. If Claude slips, or Codex suddenly gets a lot smarter, we'll just swap roles: Codex makes the plans, something cheaper does the grinding, and this becomes a Codex skill. No brand loyalty here, just quota math. (More in [Beyond Claude Code](#beyond-claude-code).)
+**Why Claude Code?** Today, Claude is the smartest one in the room. Next Tuesday? Different room. AI labs crown a new "best model ever" every other week. When the crown moves, so does the boss chair, and this becomes a Codex skill. We're not loyal. We're on a budget.
 
 ## Measured results
 
