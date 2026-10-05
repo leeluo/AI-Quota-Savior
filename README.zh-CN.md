@@ -1,21 +1,25 @@
 # AI Quota Savior
 
-**少烧额度，多干活。** Claude 带队，Codex 肝活，额度保命。
+**少烧额度，多干活。** 
 
-[![Install](https://img.shields.io/badge/install-Claude%20Code%20skill-D97757?logo=anthropic&logoColor=white)](#快速开始)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#快速开始)
-[![Executor](https://img.shields.io/badge/executor-Codex%20CLI-black?logo=openai)](https://github.com/openai/codex)
+Claude 带队，Codex 肝活，额度保命。
+
+![Install](https://img.shields.io/badge/install-Claude%20Code%20skill-D97757?logo=anthropic&logoColor=white)
+![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
+![Executor](https://img.shields.io/badge/executor-Codex%20CLI-black?logo=openai)
 
 [English](README.md)
 
 ## 为什么做这个项目
 
 **Claude 好用，但用起来提心吊胆。**
+
 - 它的模型在方案设计、推理和代码审查上效果非常好。
 - 但封号情况比较严重。花大价钱充了会员，一旦被封，这笔钱就打水漂了，成本太高。
 
 **Codex 正好相反。**
+
 - 👍 购买会员更稳定，额度更多，重置次数也更多。
 - 👎 模型效果可能不如 Claude。放任它自己做，容易偏离方案、做很多无用功、没有证据就说"做完了"、同一个 bug 反复修不好。
 
@@ -23,26 +27,40 @@
 
 AI Quota Savior 是一个 [Claude Code](https://claude.com/claude-code) skill，把这种分工固化成一套可以重复使用的流程。
 
+## 实测效果
+
+作者实际使用的数据：**Claude Pro** 套餐，推理强度开到 **xhigh**。在同样的额度下，能完成的任务量大约是只用 Claude 时的 **3.5~4 倍**。
+
+| 用法 | 同样的 Claude 额度能完成的任务量 |
+|---|---|
+| 只用 Claude | 1 倍 |
+| Claude + Codex（AI Quota Savior） | **约 3.5~4 倍** |
+
+> 以上是日常真实使用中的实测数据，不是基准测试。具体倍数和任务类型有关：中大型功能开发收益最大，小改动和疑难 bug 排查的收益会小一些。
+
 ## 设计思路
 
 **角色分工**
+
 - **Claude 是指挥**：写调查问题、方案和验收标准，并做最终判断。
 - **Codex 是执行者**：在严格的边界内调查、实现、验证，每个结论都必须拿出证据。
 
 整个流程靠普通文件驱动：Claude 写简短的指令文档，Codex 交回结构化的报告，中间由一个脚本串起来。
 
-| 类别 | 文件 | 作用 |
-|---|---|---|
-| **Skill 本体（固定）** | `SKILL.md` | Claude 的操作手册：任务分流、流程、验收标准 |
-| | `codex.sh` | 调度脚本：调用 Codex，然后做越界检查、重跑验证命令，只输出精简结果 |
-| | `explore-rules.md` / `exec-rules.md` / `audit-rules.md` | Codex 在调查、实现、验收三个阶段要遵守的规则 |
-| | `report-schema.json` | 强制 Codex 用 JSON 汇报，每个验收项都要附证据 |
-| | `self-check.py` | 用模拟的 Codex 离线测试整个流程 |
-| **每个任务**（`<repo>/.codex-tasks/<slug>/`） | `explore.md` → `map.md` | Claude 的调查问题 → Codex 的调查结果（不超过 20 行的摘要 + 带 `文件:行号` 证据的完整正文） |
-| | `plan.md` + `allowed.txt` + `verify.txt` | 带验收项 `A1…An` 的方案、允许 Codex 修改的路径、必须通过的命令 |
-| | `report.json` | Codex 的实现报告：整体状态，以及每个验收项的证据 |
-| | `audit-plan.md` → `audit.md` | 可选：开一个新的 Codex 会话独立验收 |
-| | `rework-N.md`、`decision.md` | 返工要求；Claude 的最终结论 |
+
+| 类别                                      | 文件                                                      | 作用                                                          |
+| --------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------- |
+| **Skill 本体（固定）**                        | `SKILL.md`                                              | Claude 的操作手册：任务分流、流程、验收标准                                   |
+|                                         | `codex.sh`                                              | 调度脚本：调用 Codex，然后做越界检查、重跑验证命令，只输出精简结果                        |
+|                                         | `explore-rules.md` / `exec-rules.md` / `audit-rules.md` | Codex 在调查、实现、验收三个阶段要遵守的规则                                   |
+|                                         | `report-schema.json`                                    | 强制 Codex 用 JSON 汇报，每个验收项都要附证据                               |
+|                                         | `self-check.py`                                         | 用模拟的 Codex 离线测试整个流程                                         |
+| **每个任务**（`<repo>/.codex-tasks/<slug>/`） | `explore.md` → `map.md`                                 | Claude 的调查问题 → Codex 的调查结果（不超过 20 行的摘要 + 带 `文件:行号` 证据的完整正文） |
+|                                         | `plan.md` + `allowed.txt` + `verify.txt`                | 带验收项 `A1…An` 的方案、允许 Codex 修改的路径、必须通过的命令                     |
+|                                         | `report.json`                                           | Codex 的实现报告：整体状态，以及每个验收项的证据                                 |
+|                                         | `audit-plan.md` → `audit.md`                            | 可选：开一个新的 Codex 会话独立验收                                       |
+|                                         | `rework-N.md`、`decision.md`                             | 返工要求；Claude 的最终结论                                           |
+
 
 ```mermaid
 flowchart LR
@@ -56,11 +74,16 @@ flowchart LR
   F -->|通过| I[结论 + 你手动验收]
 ```
 
+
+
 **几条核心原则**
+
 - **只把精华放进 Claude 的上下文。** 原始日志留在磁盘上。Claude 读摘要，只有决策依赖细节时才打开对应章节。
 - **用证据说话，不信自报。** "没运行"不能算通过，"构建通过"也不能代替"行为正确"。
 - **机械核实。** 脚本自动做越界检查，在沙箱外重跑验证命令；如果调查或验收阶段改动了已跟踪的源码，直接判定失败。
 - **默认安全。** 自动提交要显式开启，不会自动 push；返工最多两轮；回滚前先明确范围。
+
+
 
 ## 实际效果
 
@@ -70,18 +93,23 @@ flowchart LR
 
 ## 解决的问题
 
-| 问题 | 怎么解决 |
-|---|---|
-| 贵模型的额度耗在日常杂活上 | 读代码、改代码、跑测试、看日志都交给 Codex |
-| 执行者跑偏、过度设计 | 严格规则：只改允许的路径，保持现有风格，遇到设计取舍就停下 |
-| 没有证据就说"完成了" | 逐项提交证据，并在沙箱外重新验证 |
-| 改了不该改的文件 | 按 `allowed.txt` 自动做越界检查 |
-| 无限返工 | 最多两轮，之后由你决定 |
-| 换对话就丢上下文 | 所有状态都在任务文件里，新对话可以接着做 |
+
+| 问题            | 怎么解决                          |
+| ------------- | ----------------------------- |
+| 贵模型的额度耗在日常杂活上 | 读代码、改代码、跑测试、看日志都交给 Codex      |
+| 执行者跑偏、过度设计    | 严格规则：只改允许的路径，保持现有风格，遇到设计取舍就停下 |
+| 没有证据就说"完成了"   | 逐项提交证据，并在沙箱外重新验证              |
+| 改了不该改的文件      | 按 `allowed.txt` 自动做越界检查       |
+| 无限返工          | 最多两轮，之后由你决定                   |
+| 换对话就丢上下文      | 所有状态都在任务文件里，新对话可以接着做          |
+
+
+
 
 ## 快速开始
 
 **环境要求**
+
 - [Claude Code](https://claude.com/claude-code)。
 - [Codex CLI](https://github.com/openai/codex)，已安装并登录。
 - bash：Windows 用 Git Bash，macOS 和 Linux 用系统自带的 bash。
@@ -104,29 +132,30 @@ python ~/.claude/skills/ai-quota-savior/self-check.py   # Windows 需把 Git Bas
 或者直接说"用 AI Quota Savior，把这个任务交给 Codex：……"。
 
 Claude 会自己选做法：
+
 - **小改动**：直接改。
 - **只是想了解代码**：只做调查（`explore`）。
 - **中大型功能**：调查 → 方案 → 实现 →（验收执行）→ 判断。
 
 最后它会把"技术验收通过"和"待你手动验收"分开汇报，要不要提交始终由你决定。
 
-<details>
-<summary>脚本参数</summary>
+脚本参数
 
 ```bash
 bash ~/.claude/skills/ai-quota-savior/codex.sh <explore|exec|audit|resume|feedback|check> <repo> <slug> [返工文件]
 ```
 
-| 环境变量 | 作用 |
-|---|---|
-| `CODEX_EFFORT` | 推理强度，默认 `high` |
-| `CODEX_BIN` | Codex 的路径。默认查找顺序：Windows 桌面端里最新的 `codex.exe`，然后是 `PATH` 里的 `codex` |
-| `CODEX_CHECKPOINT=1` | 允许把未提交的改动提交成基线。只有在用户授权后才能设置 |
 
-</details>
+| 环境变量                 | 作用                                                                 |
+| -------------------- | ------------------------------------------------------------------ |
+| `CODEX_EFFORT`       | 推理强度，默认 `high`                                                     |
+| `CODEX_BIN`          | Codex 的路径。默认查找顺序：Windows 桌面端里最新的 `codex.exe`，然后是 `PATH` 里的 `codex` |
+| `CODEX_CHECKPOINT=1` | 允许把未提交的改动提交成基线。只有在用户授权后才能设置                                        |
 
-<details>
-<summary>沙箱注意事项</summary>
+
+
+
+沙箱注意事项
 
 - **Codex 沙箱可能无法启动子进程、写入某些目录或访问本机服务。**
   - 验证命令尽量选沙箱里能跑的写法。
@@ -134,13 +163,14 @@ bash ~/.claude/skills/ai-quota-savior/codex.sh <explore|exec|audit|resume|feedba
 - **需要访问本机服务或密钥的运维任务**：Codex 写好带 dry-run（空跑）模式的脚本，Claude 在沙箱外先空跑，核对无误后再执行。
 - **同一个仓库同一时间只跑一个委派**，期间也不要让其他智能体修改这个仓库。
 
-</details>
+
 
 ## 补充说明：不止于 Claude Code
 
 这个 skill 是给 Claude Code 用的，但同样的思路可以用在**任何** AI 模型上。核心就一句话：**用智能更高、但额度少的模型做指挥，让额度更多、性价比更高的模型做执行。**
 
 举个例子，你可以把它改造成一个 **Codex 的 skill**：
+
 1. **策略指挥**：用 Codex 的 Astra 或其他内部模型，开一个比较便宜的会员就够了。
 2. **执行**：交给 DeepSeek 或其他更便宜的模型。
 
