@@ -29,14 +29,12 @@ AI Quota Savior is a [Claude Code](https://claude.com/claude-code) skill that tu
 
 ## Measured results
 
-In the author's own use with a **Claude Pro** plan and reasoning effort set to **xhigh**, the same quota gets through roughly **3.5–4× as many tasks** as using Claude alone.
+**Same Claude Pro quota, 3.5–4× the work.**
 
-| Setup | Tasks completed with the same Claude quota |
-|---|---|
-| Claude alone | 1× |
-| Claude + Codex via AI Quota Savior | **≈ 3.5–4×** |
+- **Before:** with Opus 5.5 on xhigh effort, the quota drains fast, and then you sit waiting for the reset.
+- **Now:** Opus only thinks and judges, while Codex does the grinding. The same quota covers **3.5–4× as many tasks**.
 
-> This is a measurement from real day-to-day use, not a benchmark. The ratio depends on the mix of tasks: medium and large implementations gain the most, while small edits and hard debugging gain less.
+> Measured in the author's daily use (Claude Pro · Opus 5.5 · xhigh effort), not a benchmark. Medium and large features gain the most.
 
 ## How it works
 
